@@ -49,7 +49,7 @@ BE配置的通信端口有三个:
 
 BE和FE启动完成之后，需要检查进程状态，以确定服务正常启动。
 
-* 运行 `http://be_host:be_http_port3/api/health`  确认BE启动状态
+* 运行 `http://be_host:be_http_port/api/health`  确认BE启动状态
 
   * 返回 {"status": "OK","msg": "To Be Added"} 表示启动正常。
 
