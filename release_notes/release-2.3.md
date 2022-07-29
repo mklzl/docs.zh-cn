@@ -61,16 +61,17 @@
 
 - year、month、day 函数支持 DATE 数据类型。
 
-### Bug修复
+### Bug 修复
 
 修复了如下 Bug：
 
-- Tablet 过多导致 CPU 占用率过高的问题。[#5875](https://starrocks.atlassian.net/browse/SR-5875)
-- 导致出现"fail to prepare tablet reader"报错提示的问题。[#7248](https://starrocks.atlassian.net/browse/SR-7248)、 [#7854](https://starrocks.atlassian.net/browse/SR-7854)、 [#8257](https://starrocks.atlassian.net/browse/SR-8257)
+- Tablet 过多导致 CPU 占用率过高的问题。
+- 导致出现"fail to prepare tablet reader"报错提示的问题。
 - FE 重启失败的问题。[#5642](https://github.com/StarRocks/starrocks/issues/5642 )、[#4969](https://github.com/StarRocks/starrocks/issues/4969 )、[#5580](https://github.com/StarRocks/starrocks/issues/5580)
 - CTAS 语句中调用 JSON 函数时报错的问题。[#6498](https://github.com/StarRocks/starrocks/issues/6498)
 
 ### 其他
 
-- 提供集群管理工具 StarGo，提供集群部署、启停、升级、回滚、多集群管理等多种能力。相关文档，请参见[通过 StarGo 部署 StarRocks 集群](../administration/stargo.md)。
+- 【Preview】提供集群管理工具 StarGo，提供集群部署、启停、升级、回滚、多集群管理等多种能力。相关文档，请参见[通过 StarGo 部署 StarRocks 集群](../administration/stargo.md)。
 - 支持在 AWS 上使用 CloudFormation 快速创建 StarRocks 集群。相关文档，请参见[在 AWS 上使用 AWS CloudFormation 部署 StarRocks 集群](../administration/AWS_cloudformation.md)。
+- 部署或者升级至 2.3 版本，默认开启 Pipeline 执行引擎，预期在高并发小查询、复杂大查询场景下获得明显的性能优势。如果使用 2.3 版本时遇到明显的性能回退，则可以通过设置 `SET GLOBAL enable_pipeline_engine = false;`，关闭 Pipeline 执行引擎。
