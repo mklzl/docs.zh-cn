@@ -17,7 +17,7 @@
 |-----------|------------|------|
 |硬件要求|<ul><li>集群至少拥有两台物理或虚拟节点。</li><li>BE 节点 CPU 需支持 AVX2 指令集。</li><li>各节点间需要通过万兆网卡及万兆交换机连接。</li></ul>|<ul><li>FE 节点建议配置 8 核 或以上 CPU，16GB 或以上内存。</li> <li>BE 节点建议配置 16 核 或以上 CPU，64GB 或以上内存。</li><li>通过运行 <code>cat /proc/cpuinfo \|grep avx2</code> 命令查看节点 CPU 支持的指令集，若有结果返回则表明 CPU 支持 AVX2 指令集。</li></ul>|
 |操作系统|所有节点操作系统需为 CentOS（7 或以上）。| |
-|软件要求|<ul><li>所有节点需安装 Java Development Kit（1.8 或以上）。</li> <li>客户端节点需安装 MySQL 客户端（5.5 或以上）。</li> </ul>|  |
+|软件要求|<ul><li>所有节点需安装 Java Development Kit（1.8 或以上，推荐使用1.8）。</li> <li>客户端节点需安装 MySQL 客户端（5.5 或以上）。</li> </ul>|  |
 |系统环境|<ul><li>集群时钟需保持同步。 </li> <li> 用户需要有设置 <code>ulimit -n</code> 权限。 </li> </ul> | |
 
 > 说明
@@ -117,7 +117,7 @@ bin/start_fe.sh --daemon
 ...
 ```
 
-* 通过运行 `jps` 命令查看 Java 进程，确认 **StarRocksFe** 进程是否存在。
+* 通过运行 `jps` 命令查看 Java 进程，确认 **StarRocksFE** 进程是否存在。
 * 通过在浏览器访问 `FE ip:http_port`（默认 `http_port` 为 `8030`），进入 StarRocks 的 WebUI，用户名为 `root`，密码为空。
 
 > 说明
@@ -170,11 +170,11 @@ ReplayedJournalId: 1303
 ```
 
 * 当 **Role** 为 **FOLLOWER** 时，当前节点是一个能参与选主的 FE 节点。
-* 当 **IsMaster** 为 **true** 时，当前 FE 节点为主节点。
+* 当 **IsMaster** 为 **true** 时，当前 FE 节点为主节点 (Leader FE)。
 
 如果 MySQL 客户端连接失败，可以通过查看 **log/fe.warn.log** 日志文件发现问题。
 
-如果在**初次部署时**遇到任何意外问题，可以在删除并重新创建 FE 的元数据路径后，重新开始部署。
+如果在**初次部署时**遇到任何意外问题，可以在删除并重新创建 FE 的元数据目录后，重新开始部署。
 
 ### 部署 FE 节点的高可用集群
 
@@ -219,6 +219,10 @@ cd StarRocks-x.x.x/be
 > 将以上路径名修改为解压后的路径名。
 
 修改 BE 节点配置文件 **conf/be.conf**。因默认配置即可启动集群，以下示例并未修改 BE 节点配置。如需在生产环境中对集群进行详细优化配置，参考 [BE 参数配置](../administration/Configuration.md#BE-参数配置)。
+
+> 注意
+>
+> 当一台机器拥有多个 IP 地址时，需要在 BE 配置文件 **conf/be.conf** 中设置 `priority_networks`，为该节点设定唯一 IP。
 
 ### 创建数据路径
 

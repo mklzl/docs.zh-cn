@@ -1,14 +1,15 @@
 # 使用 HyperLogLog 实现近似去重
 
-本文介绍如何通过 HyperLogLog（HLL）在 StarRocks 中实现近似去重。
+本文介绍如何通过 HLL（HyperLogLog）在 StarRocks 中实现近似去重。
 
-HyperLogLog 是一种近似去重算法，在部分对去重精度要求不高的场景下，您可以选择使用 HyperLogLog 算法减轻数据去重分析的计算压力。根据数据集大小以及所采用的哈希函数的类型，HyperLogLog 算法的误差可控制在 1% 至 10% 左右。
+HLL 是一种近似去重算法，在部分对去重精度要求不高的场景下，您可以选择使用 HLL 算法减轻数据去重分析的计算压力。根据数据集大小以及所采用的哈希函数的类型，HLL 算法的误差可控制在 1% 至 10% 左右。
 
 ## 创建包含 HLL 列的表
 
 使用 HLL 去重，需要在建表语句中，将目标指标列的类型设置为 **HLL**，聚合函数设置为 **HLL_UNION**。只有聚合模型表 (Aggregate Key) 支持 HLL 类型列。
 
 > 说明
+>
 > 您无需向 HLL 列导入数据。HLL 列的数据将根据您指定的 `HLL_HASH` 函数基于导入的数据自动生成。导入数据时，该函数将自动根据指定的列生成 HLL 列。HLL 算法常用于替代 `count distinct`，通过结合物化视图在业务上用于快速计算 uv。
 
 以下示例创建 `test` 表，其中包含 DATE 数据类型列 `dt`，INT 数据类型列 `id`，以及 HLL 类型列 `uv`，其使用的 `HLL_HASH` 函数为 `HLL_UNION`。
@@ -87,7 +88,7 @@ id int,
 uv_set hll hll_union)
 distributed by hash(id) buckets 32;
 
-insert into test_uv select id, uv from test;
+insert into test_uv1 select id, uv from test;
 ~~~
 
 * 创建针对 HLL 列计算的新表，并插入通过 `HLL_HASH` 基于原示例表中相关数据生成的 HLL 列。
@@ -98,7 +99,7 @@ id int,
 uv_set hll hll_union)
 distributed by hash(id) buckets 32;
 
-insert into test_uv select id, hll_hash(id) from test;
+insert into test_uv2 select id, hll_hash(id) from test;
 ~~~
 
 ## 查询数据
@@ -141,7 +142,7 @@ SELECT COUNT(DISTINCT uv) FROM test;
 
 Bitmap 类型仅支持 TINYINT，SMALLINT，INT，BIGINT（注意不支持 LARGEINT）去重。对于其他类型数据集去重，您需要[构建词典](/using_starrocks/Bitmap_index.md#基于-trie-树构建全局字典)，将原类型映射到整数类型。HLL 去重方式则无需构建词典，仅要求对应的数据类型支持哈希函数。
 
-对于普通列，您还可以使用 `NDV` 函数进行近似去重计算。`NDV` 函数返回值是 `COUNT(DISTINCT col)` 结果的近似值聚合函数，底层实现将数据存储类型转为 HyperLogLog 类型进行计算。但 `NDV` 函数在计算的时候消耗资源较大，不适合于并发高的场景。
+对于普通列，您还可以使用 `NDV` 函数进行近似去重计算。`NDV` 函数返回值是 `COUNT(DISTINCT col)` 结果的近似值聚合函数，底层实现将数据存储类型转为 HLL 类型进行计算。但 `NDV` 函数在计算的时候消耗资源较大，不适合于并发高的场景。
 
 如果您的应用场景为用户行为分析，建议使用 `INTERSECT_COUNT` 或者自定义 UDAF 去重。
 

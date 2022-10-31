@@ -33,7 +33,7 @@ MySQL [(none)]> SHOW DATABASES;
 3 rows in set (0.00 sec)
 ```
 
-> 说明：与 MySQL 的表结构类似，`Information_schema` 包含当前 StarRocks 集群的元数据信息，但是部分统计信息还不完善。推荐您通过 `DESC table_name` 等命令来获取数据库元数据信息。
+> 说明：与 MySQL 的表结构类似，`information_schema` 包含当前 StarRocks 集群的元数据信息，但是部分统计信息还不完善。推荐您通过 `DESC table_name` 等命令来获取数据库元数据信息。
 
 ## 创建表
 
@@ -45,24 +45,35 @@ StarRocks 支持 [多种数据模型](../table_design/Data_model.md)，以适用
 
 ```sql
 use example_db;
-CREATE TABLE IF NOT EXISTS detailDemo (
-    recruit_date  DATE           NOT NULL COMMENT "YYYY-MM-DD",
-    region_num    TINYINT        COMMENT "range [-128, 127]",
-    num_plate     SMALLINT       COMMENT "range [-32768, 32767] ",
-    tel           INT            COMMENT "range [-2147483648, 2147483647]",
-    id            BIGINT         COMMENT "range [-2^63 + 1 ~ 2^63 - 1]",
-    password      LARGEINT       COMMENT "range [-2^127 + 1 ~ 2^127 - 1]",
-    name          CHAR(20)       NOT NULL COMMENT "range char(m),m in (1-255) ",
-    profile       VARCHAR(500)   NOT NULL COMMENT "upper limit value 65533 bytes",
-    hobby         STRING         NOT NULL COMMENT "upper limit value 65533 bytes",
-    leave_time    DATETIME       COMMENT "YYYY-MM-DD HH:MM:SS",
-    channel       FLOAT          COMMENT "4 bytes",
-    income        DOUBLE         COMMENT "8 bytes",
-    account       DECIMAL(12,4)  COMMENT "",
-    ispass        BOOLEAN        COMMENT "true/false"
+CREATE TABLE IF NOT EXISTS `detailDemo` (
+    `recruit_date`  DATE           NOT NULL COMMENT "YYYY-MM-DD",
+    `region_num`    TINYINT        COMMENT "range [-128, 127]",
+    `num_plate`     SMALLINT       COMMENT "range [-32768, 32767] ",
+    `tel`           INT            COMMENT "range [-2147483648, 2147483647]",
+    `id`            BIGINT         COMMENT "range [-2^63 + 1 ~ 2^63 - 1]",
+    `password`      LARGEINT       COMMENT "range [-2^127 + 1 ~ 2^127 - 1]",
+    `name`          CHAR(20)       NOT NULL COMMENT "range char(m),m in (1-255)",
+    `profile`       VARCHAR(500)   NOT NULL COMMENT "upper limit value 1048576 bytes",
+    `hobby`         STRING         NOT NULL COMMENT "upper limit value 65533 bytes",
+    `leave_time`    DATETIME       COMMENT "YYYY-MM-DD HH:MM:SS",
+    `channel`       FLOAT          COMMENT "4 bytes",
+    `income`        DOUBLE         COMMENT "8 bytes",
+    `account`       DECIMAL(12,4)  COMMENT "",
+    `ispass`        BOOLEAN        COMMENT "true/false"
 ) ENGINE=OLAP
-DUPLICATE KEY(recruit_date, region_num)
-DISTRIBUTED BY HASH(recruit_date, region_num) BUCKETS 8;
+DUPLICATE KEY(`recruit_date`, `region_num`)
+PARTITION BY RANGE(`recruit_date`)
+(
+    PARTITION p20220311 VALUES [('2022-03-11'), ('2022-03-12')),
+    PARTITION p20220312 VALUES [('2022-03-12'), ('2022-03-13')),
+    PARTITION p20220313 VALUES [('2022-03-13'), ('2022-03-14')),
+    PARTITION p20220314 VALUES [('2022-03-14'), ('2022-03-15')),
+    PARTITION p20220315 VALUES [('2022-03-15'), ('2022-03-16'))
+)
+DISTRIBUTED BY HASH(`recruit_date`, `region_num`) BUCKETS 8
+PROPERTIES (
+    "replication_num" = "1" 
+);
 ```
 
 > 注意
@@ -104,7 +115,7 @@ StarRocks 默认会给 Key 列创建稀疏索引加速查询，具体规则见 [
 
 #### ENGINE 类型
 
-默认 ENGINE 类型为 `OLAP`，对应 StarRocks 集群内部表。其他可选项包括 `mysql`，`elasticsearch`，`hive`，以及 `ICEBERG`，分别代表所创建的表为相应类型的 [外部表](/using_starrocks/External_table.md)。
+默认 ENGINE 类型为 `OLAP`，对应 StarRocks 集群内部表。其他可选项包括 `mysql`，`elasticsearch`，`hive`，以及 `ICEBERG`，分别代表所创建的表为相应类型的 [外部表](/data_source/External_table.md)。
 
 ## 查看表信息
 

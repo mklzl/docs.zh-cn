@@ -2,13 +2,13 @@
 
 本文介绍如何使用 INSERT 语句向 StarRocks 导入数据。
 
-与 MySQL 等数据库系统类似，StarRocks 支持通过 INSERT 语句导入数据。您可以使用 INSERT INTO VALUES 语句直接向表中插入数据，您还可以通过 INSERT INTO SELECT 语句将其他 StarRocks 表中的数据导入到新的 StarRocks 表中，或者将其他数据源的数据通过[外部表功能](../using_starrocks/External_table.md)导入至 StarRocks 内部表中。
+与 MySQL 等数据库系统类似，StarRocks 支持通过 INSERT 语句导入数据。您可以使用 INSERT INTO VALUES 语句直接向表中插入数据，您还可以通过 INSERT INTO SELECT 语句将其他 StarRocks 表中的数据导入到新的 StarRocks 表中，或者将其他数据源的数据通过[外部表功能](../data_source/External_table.md)导入至 StarRocks 内部表中。
 
 2.4 版本中，StarRocks 进一步支持通过 INSERT OVERWRITE 语句批量**覆盖写入**目标表。INSERT OVERWRITE 语句通过整合以下三部分操作来实现覆盖写入：
 
-1. 为目标分区[创建临时分区](../using_starrocks/Temporary_partition.md#创建临时分区)
-2. [写入数据至临时分区](../using_starrocks/Temporary_partition.md#导入数据至临时分区)
-3. [使用临时分区原子替换目标分区](../using_starrocks/Temporary_partition.md#使用临时分区进行替换)
+1. 为目标分区[创建临时分区](../table_design/Temporary_partition.md#创建临时分区)
+2. [写入数据至临时分区](../table_design/Temporary_partition.md#导入数据至临时分区)
+3. [使用临时分区原子替换目标分区](../table_design/Temporary_partition.md#使用临时分区进行替换)
 
 如果您希望在替换前验证数据，可以根据以上步骤自行实现覆盖写入数据。
 
@@ -20,7 +20,7 @@
 
 - 频繁使用 INSERT 语句导入小批量数据会产生过多的数据版本，从而影响查询性能，因此不建议您频繁使用 INSERT 语句导入数据或将其作为生产环境的日常例行导入作业。如果您的业务场景需要流式导入或者小批量多次导入数据，建议使用 Apache Kafka® 作为数据源并通过 [Routine Load](../loading/RoutineLoad.md) 方式进行导入作业。
 
-- 执行 INSERT OVERWRITE 语句后，系统将为目标分区创建相应的临时分区，并将数据写入临时分区，最后使用临时分区原子替换目标分区来实现覆盖写入。其所有过程均在在 FE leader 节点执行。因此，如果 FE leader 节点在覆盖写入过程中发生宕机，将会导致该次 INSERT OVERWRITE 导入失败，其过程中所创建的临时分区也会被删除。
+- 执行 INSERT OVERWRITE 语句后，系统将为目标分区创建相应的临时分区，并将数据写入临时分区，最后使用临时分区原子替换目标分区来实现覆盖写入。其所有过程均在在 Leader FE 节点执行。因此，如果 Leader FE 节点在覆盖写入过程中发生宕机，将会导致该次 INSERT OVERWRITE 导入失败，其过程中所创建的临时分区也会被删除。
 
 ## 准备工作
 

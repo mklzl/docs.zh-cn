@@ -79,7 +79,7 @@
 
 3. **下载 [flink-connector-starrocks](https://search.maven.org/artifact/com.starrocks/flink-connector-starrocks)**，并且其版本需要对应 Flink 的版本。
 
-      > flink-connector-starrocks 的 JAR 包 (**x.x.x_flink-****y****.****yy****_****z****.****zz****.jar**) 会包含三个版本号：
+      > flink-connector-starrocks 的 JAR 包 (**x.x.x_flink-y.yy_z.zz.jar**) 会包含三个版本号：
       >
       > - 第一个版本号 x.x.x 为 flink-connector-starrocks 的版本号。
       >
@@ -118,7 +118,7 @@
    # 设置 Binlog 的存储位置
    log_bin =/var/lib/mysql/mysql-bin
    # 设置 server_id 
-   # 在 MySQL 5.7.3 及以后版本，如果没有 server_id, 那么设置 binlog 后无法开启 MySQL 服务 
+   # 在 MySQL 5.7.3 及以后版本，如果没有 server_id，那么设置 binlog 后无法开启 MySQL 服务 
    server_id = 1
    # 设置 Binlog 模式为 ROW
    binlog_format = ROW
@@ -134,14 +134,14 @@
     # 使用 service 启动
     service mysqld restart
     # 使用 mysqld 脚本启动
-    /etc/inint.d/mysqld restart
+    /etc/init.d/mysqld restart
    ```
 
 3. 连接 MySQL，执行如下语句确认是否已经开启 Binlog：
 
    ```Plain
    -- 连接 MySQL
-   mysql -h xxx.xx.xxx.xx -uroot -p xxxxxx
+   mysql -h xxx.xx.xxx.xx -P 3306 -u root -pxxxxxx
 
    -- 检查是否已经开启 MySQL Binlog，`ON`就表示已开启
    mysql> SHOW VARIABLES LIKE 'log_bin'; 
@@ -233,7 +233,7 @@
     > 您也可以根据业务需要，修改 SQL 文件中的建表语句，基于[非主键模型](../table_design/Data_model.md#主键模型)创建目标表。但是源 MySQL 中的 DELETE 操作无法同步至非主键模型，请谨慎使用。
 
     ```Bash
-    mysql -h <fe_host> -P <fe_query_port> -u user2 -p xxxxxx < starrocks-create.all.sql
+    mysql -h <fe_host> -P <fe_query_port> -u user2 -pxxxxxx < starrocks-create.all.sql
     ```
 
     如果数据需要经过 Flink 处理后写入目标表，目标表与源表的结构不一样，则您需要修改 SQL 文件 **starrocks-create.all.sql** 中的建表语句。本示例中目标表仅需要保留商品 ID (product_id)、商品名称(product_name)，并且对商品销量进行实时排名，因此可以使用如下建表语句。
